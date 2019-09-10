@@ -105,7 +105,19 @@
 
     initAccordion(){
       const thisProduct = this;
-
+      const clickedTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      clickedTrigger.addEventListener('click', function(event){
+        event.preventDefault();
+        thisProduct.element.classList.add('active');
+        let activeProducts = document.querySelectorAll('.product.active');
+        for(let activeProduct of activeProducts) {
+          if(activeProduct != thisProduct.element) {
+            activeProduct.classList.remove('active');
+          }
+        }
+      });     
+      
+                
       /* find the clickable trigger (the element that should react to clicking) */
 
       /* START: click event listener to trigger */
@@ -129,11 +141,9 @@
       /* END: click event listener to trigger */
 
 
-    }
+    } 
 
-  } 
-
-  
+  }    
 
   app.init();
 }
