@@ -179,22 +179,24 @@
       console.log('form=', formData);
       let price = thisProduct.data.price;
       for( let paramId in thisProduct.data.params){
-        const param = paramId;
-        const product = thisProduct.data.params[paramId];
-        console.log('product=', product);
-        console.log('param=', param.options);
+        const param = thisProduct.data.params[paramId];
+        console.log('param.options=',param.options);
         for(let optionId in param.options){
-          const option = optionId;
-          console.log('optionId=', option);
-
+          const option = param.options[optionId];
+          console.log('option=', option);
+          console.log('option price=', option.price);
+          console.log('option def=', option.default);
           const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
           if(optionSelected && !option.default){
             price = price + option.price;
-          }
-
+          } else if(!optionSelected && option.default){
+            price = price - option.price;
+          };
+          thisProduct.priceElem.innerHTML = price;
         } 
       }
       console.log('price:', price);
+      console.log('price2:', thisProduct.priceElem);
       console.log('formData', formData);
     }
 
