@@ -90,7 +90,10 @@
       thisProduct.data = data;
 
       thisProduct.renderInMenu();
+      thisProduct.getElements();
       thisProduct.initAccordion();
+      thisProduct.initOrderForm();
+      thisProduct.processOrder();
 
       console.log('new Product:', thisProduct);
     }
@@ -103,10 +106,20 @@
       menuContainer.appendChild(thisProduct.element);
     }
 
+    getElements(){
+      const thisProduct = this;
+    
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+    }
+
     initAccordion(){
       const thisProduct = this;
-      const clickedTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
-      clickedTrigger.addEventListener('click', function(event){
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.accordionTrigger.addEventListener('click', function(event){
         event.preventDefault();
         thisProduct.element.classList.add('active');
         let activeProducts = document.querySelectorAll('.product.active');
@@ -115,9 +128,8 @@
             activeProduct.classList.remove('active');
           }
         }
-      });     
-      
-                
+      });    
+             
       /* find the clickable trigger (the element that should react to clicking) */
 
       /* START: click event listener to trigger */
@@ -139,9 +151,52 @@
       /* END LOOP: for each active product */
 
       /* END: click event listener to trigger */
-
-
     } 
+
+    initOrderForm() {
+      const thisProduct = this;
+      thisProduct.form.addEventListener('submit', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+    
+
+      for(let input of thisProduct.formInputs){
+        input.addEventListener('change', function(){
+          thisProduct.processOrder();
+        });
+      }
+
+      thisProduct.cartButton.addEventListener('click', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+    }
+
+    processOrder() {
+      const thisProduct = this;
+      const formData = utils.serializeFormToObject(thisProduct.form);
+      console.log('form=', formData);
+      let price = thisProduct.data.price;
+      for( let paramId in thisProduct.data.params){
+        const param = paramId;
+        const product = thisProduct.data.params[paramId];
+        console.log('product=', product);
+        console.log('param=', param.options);
+        for(let optionId in param.options){
+          const option = optionId;
+          console.log('optionId=', option);
+
+          const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
+          if(optionSelected && !option.default){
+            price = price + option.price;
+          }
+
+        } 
+      }
+      console.log('price:', price);
+      console.log('formData', formData);
+    }
 
   }    
 
