@@ -76,6 +76,40 @@
     cartProduct: Handlebars.compile(document.querySelector(select.templateOf.cartProduct).innerHTML),
   };
 
+  class Cart {
+    constructor(element){
+      const thisCart = this;
+
+      thisCart.products = [];
+
+      thisCart.getElements(element);
+      thisCart.initActions();
+      console.log('new cart', thisCart);
+      console.log('wraper', thisCart.dom.wrapper);
+    }
+
+    getElements(element){
+      const thisCart = this;
+
+      thisCart.dom = {};
+      thisCart.dom.wrapper = element;
+      thisCart.dom.toggleTrigger = element.querySelector(select.cart.toggleTrigger);
+      
+    }
+
+    initActions(){
+      const thisCart = this;
+      thisCart.dom.toggleTrigger.addEventListener('click', function(event){
+        event.preventDefault();
+        if (thisCart.dom.wrapper.classList.contains(classNames.cart.wrapperActive)){      
+          thisCart.dom.wrapper.classList.remove(classNames.cart.wrapperActive);
+        } else {
+          thisCart.dom.wrapper.classList.add(classNames.cart.wrapperActive);
+        }
+      });
+    }
+  }
+
   const app = {
     initMenu: function(){
       const thisApp = this;
@@ -84,8 +118,15 @@
 
       for(let productData in thisApp.data.products){
         new Product(productData, thisApp.data.products[productData]);
-      }
+      }     
     },
+
+    initCart: function(){
+      const thisApp = this;
+
+      const cartElem = document.querySelector(select.containerOf.cart);
+      thisApp.cart = new Cart(cartElem);
+    },    
 
     initData: function(){
       const thisApp = this;
@@ -103,6 +144,7 @@
 
       thisApp.initData();
       thisApp.initMenu();
+      thisApp.initCart();
     },
   };
 
@@ -217,14 +259,12 @@
     initAmountWidget(){
       const thisProduct = this;
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
-      thisProduct.amountWidgetElem.addEventListener('ubdated', function(){
+      thisProduct.amountWidgetElem.addEventListener('updated', function(){
         thisProduct.processOrder();
       }  
       
       );
-
     }
-
   }    
 
   class AmountWidget{
@@ -286,8 +326,8 @@
     announce(){
       const thisWidget = this;
 
-      const event = new Event('ubdated');
-      thisWidget.element.dispatchEvent(event);
+      const event = new Event('updated');
+      thisWidget.element.dispatchEvent(event);  
     }
   }
 
