@@ -150,6 +150,19 @@
       thisCart.dom.productList.addEventListener('updated', function(){
         thisCart.update();
       }); 
+      thisCart.dom.productList.addEventListener('remove', function(){
+        console.log('event', event.detail.cartProduct);
+        thisCart.remove(event.detail.cartProduct);
+      }); 
+    }
+
+    remove(cartProduct){
+      const thisCart = this;
+      const index = thisCart.products.indexOf(cartProduct);      
+      thisCart.products.splice(index, 1);
+      cartProduct.dom.wrapper.remove();
+      thisCart.update();
+      // console.log('products', thisCart.products);
     }
   }
 
@@ -165,9 +178,33 @@
       thisCartProduct.params = JSON.parse(JSON.stringify(menuProduct.params));
       thisCartProduct.getElements(element);
       thisCartProduct.initAmountWidget();          
+      thisCartProduct.initAction();          
 
-      console.log('thisCartProduct:', thisCartProduct);
-      console.log('productData:', menuProduct);
+      // console.log('productData:', menuProduct);
+    }
+
+    remove(){
+      const thisCartProduct = this;
+
+      const event = new CustomEvent('remove', {
+        bubbles: true,
+        detail: {
+          cartProduct: thisCartProduct,
+        }
+      });
+
+      thisCartProduct.dom.wrapper.dispatchEvent(event);
+    }
+
+    initAction(){
+      const thisCartProduct = this;
+      thisCartProduct.dom.edit.addEventListener('click', function(event){
+        event.preventDefault();
+      });
+      thisCartProduct.dom.remove.addEventListener('click', function(event){
+        event.preventDefault();
+        thisCartProduct.remove();
+      });
     }
     
 
@@ -186,7 +223,7 @@
     initAmountWidget(){
       const thisCartProduct = this;
       thisCartProduct.amountWidget = new AmountWidget(thisCartProduct.dom.amountWidget);
-      console.log('thisCart', thisCartProduct.amountWidget);
+      // console.log('thisCart', thisCartProduct.amountWidget);
       thisCartProduct.dom.amountWidget.addEventListener('updated', function(){
         thisCartProduct.amount = thisCartProduct.amountWidget.value;
         thisCartProduct.price = thisCartProduct.priceSingle * thisCartProduct.amount;
