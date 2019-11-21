@@ -136,6 +136,9 @@
       thisCart.dom.toggleTrigger = element.querySelector(select.cart.toggleTrigger);
       thisCart.dom.productList = element.querySelector(select.cart.productList);
       thisCart.renderTotalsKeys = ['totalNumber', 'totalPrice', 'subtotalPrice', 'deliveryFee'];
+      thisCart.dom.form = element.querySelector(select.cart.form);
+      thisCart.dom.phone = element.querySelector(select.cart.phone);
+      thisCart.dom.address = element.querySelector(select.cart.address);
 
       for(let key of thisCart.renderTotalsKeys){
         thisCart.dom[key] = thisCart.dom.wrapper.querySelectorAll(select.cart[key]);
@@ -158,7 +161,49 @@
       thisCart.dom.productList.addEventListener('remove', function(){
         console.log('event', event.detail.cartProduct);
         thisCart.remove(event.detail.cartProduct);
-      }); 
+      });
+
+      thisCart.dom.form.addEventListener('submit', function(event){
+        event.preventDefault();
+        thisCart.sendOrder();
+      });
+    }
+
+    sendOrder(){
+      const thisCart = this;
+      const url = settings.db.url + '/' + settings.db.order;
+
+      const payload = {
+        address: thisCart.dom.address.value,
+        phone: thisCart.dom.phone.value,
+        deliveryFee: thisCart.deliveryFee,
+        subTotalPrice: thisCart.subtotalPrice,
+        totalPrice: thisCart.totalPrice,
+        tatalNumber: thisCart.totalNumber,
+        Products: [],
+      };
+
+      for (let product of thisCart.products){
+        const data = product.getData();
+        console.log('data', data);
+        payload.Products.push(data);
+      }
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      };      
+
+      fetch(url, options)
+        .then(function(response){
+          return response.json();
+        })
+        .then(function(parsedResponse){
+          console.log('parsedResponse', parsedResponse);
+        });
     }
 
     remove(cartProduct){
@@ -185,7 +230,19 @@
       thisCartProduct.initAmountWidget();          
       thisCartProduct.initAction();          
 
-      // console.log('productData:', menuProduct);
+      console.log('productData:', menuProduct);
+    }
+
+    getData(){
+      const thisCartProduct = this;
+      const data = {
+        id: thisCartProduct.id,
+        price: thisCartProduct.price,
+        priceSingle: thisCartProduct.priceSingle,
+        amount: thisCartProduct.amount,
+        paramms: thisCartProduct.params,
+      };
+      return data;  
     }
 
     remove(){
